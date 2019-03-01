@@ -14,7 +14,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+// Does not run with the emulator: No location found
 public class MainActivity extends AppCompatActivity {
+    private static final String LOG_TAG = "locations";
     private LocationManager locationManager;
     private LocationListener locationListener;
     private TextView latitudeView, longitudeView, altitudeView;
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
+            Log.w(LOG_TAG, "Missing location permission");
             LinearLayout layout = findViewById(R.id.mainLayout);
             final Snackbar snackbar = Snackbar.make(layout, "Missing location permission", Snackbar.LENGTH_INDEFINITE);
             snackbar.setAction("OK", new View.OnClickListener() {
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             snackbar.show();
             return;
         }
-        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         showLocation(lastKnownLocation);
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minimumTime, minimumDistance, locationListener);
         } catch (SecurityException ex) {
-            Log.e("SHIT", ex.toString());
+            Log.e(LOG_TAG, ex.toString());
         }
     }
 
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         longitudeView.setText("Longitude: " + location.getLongitude());
         altitudeView.setText("Altitude: " + location.getAltitude());
         final String message = String.format("Lat %s Lon %s Alt %s", latitude, location.getLongitude(), location.getAltitude());
-        Log.d("MINE", message);
+        Log.d(LOG_TAG, message);
     }
 
     @Override
@@ -93,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             if (locationManager != null && locationListener != null)
                 locationManager.removeUpdates(locationListener);
         } catch (SecurityException ex) {
-            Log.e("SHIT", ex.toString());
+            Log.e(LOG_TAG, ex.toString());
         }
     }
 
@@ -102,10 +105,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
-            if (locationManager != null && locationListener!=null)
+            if (locationManager != null && locationListener != null)
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minimumTime, minimumDistance, locationListener);
         } catch (SecurityException ex) {
-            Log.e("SHIT", ex.toString());
+            Log.e(LOG_TAG, ex.toString());
         }
     }
 }
